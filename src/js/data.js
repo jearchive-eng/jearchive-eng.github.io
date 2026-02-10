@@ -1,13 +1,13 @@
 // data.js - MANUEL VERİ GİRİŞİ
 
 const documentsData = {
-    'ornek-belge': {
-        id: 'ornek-belge',
-        title: 'Örnek Belge Başlığı',
-        description: 'Bu bir örnek belgedir. GitHub Pages otomatik arşiv sisteminde nasıl göründüğünü test etmek için oluşturulmuştur.',
+    'EFTA00000001': {
+        id: 'EFTA00000001',
+        title: 'EFTA00000001',
+        description: 'This is an FBI evidence photography form from the Jeffrey Epstein investigation, dated July 6, 2019. It documents photographic evidence collected at Epsteins Manhattan residence (9 East 71st Street, New York). The Case ID "31E-NY-3027571" corresponds to the FBIs investigation into Epsteins activities. The redacted photographer field and specific evidence tracking number "EFTA00000001" indicate this was part of the federal task force evidence collection during the execution of search warrants following Epsteins arrest.',
         filename: 'EFTA00000001.pdf',
         fileUrl: './src/doc/EFTA00000001.pdf',
-        markdownUrl: './src/doc/ornek-belge.md',
+        markdownUrl: './src/doc/EFTA00000001.md',
         date: '2026-02-10',
         size: '2 MB',
         type: 'pdf',
