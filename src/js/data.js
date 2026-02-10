@@ -13,7 +13,7 @@ const documentsData = {
         size: '2 MB',
         type: 'pdf',
         category: 'FEDERAL',
-        fileType: 'pdf'
+        fileType: 'doc'
     }
     
     // YENİ BELGE EKLEME ÖRNEĞİ:
