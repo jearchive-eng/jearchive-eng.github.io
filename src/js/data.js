@@ -6,7 +6,7 @@ const documentsData = {
         id: 'ornek-belge',
         title: 'Örnek Belge Başlığı',
         description: 'Bu bir örnek belgedir. GitHub Pages otomatik arşiv sisteminde nasıl göründüğünü test etmek için oluşturulmuştur.',
-        filename: 'EFTA00000001.pdf',
+        filename: 'ornek-belge.pdf',
         fileUrl: './src/doc/EFTA00000001.pdf',
         markdownUrl: './src/doc/ornek-belge.md',
         date: '2026-02-10',
