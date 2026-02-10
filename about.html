@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Documents Archive</title>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <nav id="mobileMenu" class="mobile-menu">
+        <button class="mobile-menu-close" onclick="closeMobileMenu()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <a href="index.html" class="mobile-menu-item">Home</a>
+        <a href="index.html" class="mobile-menu-item">Documents</a>
+        <a href="about.html" class="mobile-menu-item active">About</a>
+    </nav>
+
+    <!-- Hamburger Button -->
+    <button class="hamburger" onclick="openMobileMenu()" aria-label="Menu">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <div class="container about-container">
+        <h1 class="site-title">About</h1>
+        
+        <div class="about-content">
+            <div id="aboutMarkdown"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Mobile Menu Functions
+        function openMobileMenu() {
+            document.getElementById('mobileMenu').classList.add('open');
+            document.getElementById('mobileOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileMenu').classList.remove('open');
+            document.getElementById('mobileOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Load About Content
+        async function loadAbout() {
+            try {
+                const response = await fetch('src/pages/about.md');
+                const markdown = await response.text();
+                document.getElementById('aboutMarkdown').innerHTML = marked.parse(markdown);
+            } catch (error) {
+                document.getElementById('aboutMarkdown').innerHTML = `
+                    <h2>Documents Archive</h2>
+                    <p>This is a document archive system built for organizing and sharing files.</p>
+                    <p>Features include:</p>
+                    <ul>
+                        <li>Advanced search capabilities</li>
+                        <li>Multiple file type support</li>
+                        <li>Markdown-based content management</li>
+                        <li>Responsive design</li>
+                    </ul>
+                `;
+            }
+        }
+
+        loadAbout();
+    </script>
+</body>
+</html>

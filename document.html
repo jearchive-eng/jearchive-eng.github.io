@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document View</title>
+    <link rel="stylesheet" href="src/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="src/js/markdown.js"></script>
+</head>
+<body class="document-page">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <nav id="mobileMenu" class="mobile-menu">
+        <button class="mobile-menu-close" onclick="closeMobileMenu()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        <a href="index.html" class="mobile-menu-item">Home</a>
+        <a href="documents.html" class="mobile-menu-item">Documents</a>
+        <a href="about.html" class="mobile-menu-item">About</a>
+    </nav>
+
+    <!-- Hamburger Button -->
+    <button class="hamburger" onclick="openMobileMenu()" aria-label="Menu">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to Archive
+    </a>
+
+    <!-- Document Container -->
+    <div class="document-container">
+        
+        <!-- Document Header -->
+        <div class="document-header">
+            <h1 id="docTitle" class="document-title">Loading...</h1>
+            <div class="document-meta">
+                <span id="docDate">Document Date: Loading...</span>
+                <button class="copy-link-btn" onclick="copyCurrentLink()" title="Copy Link">
+                    <svg width="20" height="20" stroke-width="2.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g id="Clipboard">
+                            <path id="Rectangle 2" d="M15 3.5H20.5V21.5H3.5V3.5H9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path id="Vector 1" d="M8.5 15.5L12.5 19.5L19.5 12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path id="Rectangle 1" d="M7.8431 3.5V2.5H16.1569V3.5C16.1569 5.49763 14.536 7.11364 12.5388 7.11364H11.4612C9.46398 7.11364 7.8431 5.49763 7.8431 3.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        </g>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="document-content-wrapper" style="text-align: center; padding: 60px;">
+            <div class="loading-spinner" style="width: 40px; height: 40px; border-width: 3px;"></div>
+            <p style="margin-top: 20px; color: var(--text-muted);">Loading document...</p>
+        </div>
+
+        <!-- Document Content -->
+        <div id="docContent" class="document-content-wrapper hidden">
+            <!-- Summary Section -->
+            <div id="docSummary" class="document-summary"></div>
+            
+            <!-- People Section -->
+            <div id="docPeople" class="document-section hidden">
+                <h3>People</h3>
+                <ul></ul>
+            </div>
+
+            <!-- Places Section -->
+            <div id="docPlaces" class="document-section hidden">
+                <h3>Places</h3>
+                <ul></ul>
+            </div>
+
+            <!-- Custom Sections -->
+            <div id="docCustomSections"></div>
+
+            <!-- File Viewer -->
+            <div class="file-viewer">
+                <div class="file-viewer-header">
+                    <span class="file-viewer-title">Document Preview</span>
+                    <a id="downloadBtn" href="#" class="download-link" download>Download the file directly</a>
+                </div>
+                <div class="file-viewer-content">
+                    <iframe id="docIframe" src="" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="document-content-wrapper hidden" style="text-align: center; padding: 60px;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: #ef4444; margin-bottom: 16px;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3 style="color: var(--text-primary); margin-bottom: 8px;">Error Loading Document</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Could not load the document content.</p>
+            <button onclick="location.reload()" class="view-btn">Try Again</button>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Link copied to clipboard!</div>
+
+    <script src="src/js/data.js"></script>
+    <script>
+        // Get document ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const docId = urlParams.get('id');
+
+        // Mobile Menu Functions
+        function openMobileMenu() {
+            document.getElementById('mobileMenu').classList.add('open');
+            document.getElementById('mobileOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileMenu').classList.remove('open');
+            document.getElementById('mobileOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Show/Hide states
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('docContent').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+        }
+
+        function showContent() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('docContent').classList.remove('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+        }
+
+        function showError() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('docContent').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        // Load Document
+        async function loadDocument() {
+            if (!docId) {
+                document.getElementById('docTitle').textContent = 'Document Not Found';
+                showError();
+                return;
+            }
+
+            // Try to find document in data.js first
+            let doc = documentsData[docId];
+            
+            // If not found, try to auto-load from src/docs/
+            if (!doc) {
+                doc = await autoLoadDocument(docId);
+            }
+
+            if (!doc) {
+                document.getElementById('docTitle').textContent = 'Document Not Found';
+                showError();
+                return;
+            }
+
+            // Set title and meta
+            document.getElementById('docTitle').textContent = doc.title;
+            document.getElementById('docDate').textContent = `Document Date: ${doc.date}`;
+            document.title = `${doc.title} - Documents Archive`;
+            
+            // Set download link
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (doc.fileUrl) {
+                downloadBtn.href = doc.fileUrl;
+                downloadBtn.download = doc.filename;
+                downloadBtn.style.display = 'inline';
+            } else {
+                downloadBtn.style.display = 'none';
+            }
+
+            // Load markdown content
+            try {
+                const markdownUrl = doc.markdownUrl || `./src/docs/${docId}.md`;
+                const response = await fetch(markdownUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const markdown = await response.text();
+                
+                if (!markdown || markdown.trim().length === 0) {
+                    throw new Error('Empty markdown file');
+                }
+
+                // Parse and display markdown
+                const html = MarkdownParser.parse(markdown);
+                document.getElementById('docSummary').innerHTML = html;
+
+                // Parse special sections
+                parseMarkdownSections(markdown);
+                
+                showContent();
+
+            } catch (error) {
+                console.error('Error loading markdown:', error);
+                // Show basic info even if markdown fails
+                document.getElementById('docSummary').innerHTML = `
+                    <h2>Document Information</h2>
+                    <p>${doc.description || 'No description available.'}</p>
+                    <p style="color: var(--text-muted); margin-top: 20px;">
+                        <small>Detailed description unavailable. You can still download the file below.</small>
+                    </p>
+                `;
+                showContent();
+            }
+
+            // Set iframe preview
+            setupIframePreview(doc);
+        }
+
+        // Auto-load document from file system
+        async function autoLoadDocument(id) {
+            // Try to fetch the markdown file to see if it exists
+            try {
+                const mdResponse = await fetch(`./src/docs/${id}.md`, { method: 'HEAD' });
+                if (!mdResponse.ok) return null;
+                
+                // Try to get file info from directory listing or default values
+                const doc = {
+                    id: id,
+                    title: id.split('-').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' '),
+                    description: 'Auto-loaded document',
+                    filename: `${id}.pdf`,
+                    fileUrl: `./src/docs/${id}.pdf`,
+                    markdownUrl: `./src/docs/${id}.md`,
+                    date: new Date().toISOString().split('T')[0],
+                    size: 'Unknown',
+                    type: 'pdf',
+                    category: 'DOCUMENT',
+                    fileType: 'doc'
+                };
+
+                // Try to determine actual file type
+                const extensions = ['pdf', 'mp4', 'jpg', 'png', 'docx', 'txt'];
+                for (const ext of extensions) {
+                    try {
+                        const fileCheck = await fetch(`./src/docs/${id}.${ext}`, { method: 'HEAD' });
+                        if (fileCheck.ok) {
+                            doc.filename = `${id}.${ext}`;
+                            doc.fileUrl = `./src/docs/${id}.${ext}`;
+                            doc.type = ext;
+                            doc.fileType = getFileTypeFromExt(ext);
+                            break;
+                        }
+                    } catch (e) {
+                        // Continue to next extension
+                    }
+                }
+
+                return doc;
+                
+            } catch (error) {
+                console.error('Auto-load failed:', error);
+                return null;
+            }
+        }
+
+        function getFileTypeFromExt(ext) {
+            const docExts = ['pdf', 'doc', 'docx', 'txt', 'rtf', 'xls', 'xlsx', 'ppt', 'pptx'];
+            const imgExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const videoExts = ['mp4', 'avi', 'mkv', 'mov', 'webm'];
+            
+            if (docExts.includes(ext)) return 'doc';
+            if (imgExts.includes(ext)) return 'img';
+            if (videoExts.includes(ext)) return 'video';
+            return 'doc';
+        }
+
+        function setupIframePreview(doc) {
+            const iframe = document.getElementById('docIframe');
+            const fileExt = (doc.type || 'pdf').toLowerCase();
+            
+            if (fileExt === 'pdf') {
+                // Use Google Docs viewer as fallback for better compatibility
+                const fileUrl = encodeURIComponent(window.location.origin + '/' + doc.fileUrl.replace('./', ''));
+                iframe.src = `https://docs.google.com/gview?embedded=1&url=${fileUrl}`;
+                // Fallback to direct if Google fails
+                iframe.onerror = () => {
+                    iframe.src = doc.fileUrl;
+                };
+            } else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(fileExt)) {
+                iframe.srcdoc = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { 
+                                margin: 0; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                min-height: 100vh; 
+                                background: #0a0a0a;
+                            }
+                            img { 
+                                max-width: 100%; 
+                                max-height: 90vh; 
+                                object-fit: contain;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${doc.fileUrl}" alt="${doc.title}" onerror="this.parentElement.innerHTML='<p style=\\'color:white;text-align:center;\\'>Image failed to load</p>'">
+                    </body>
+                    </html>
+                `;
+            } else if (['mp4', 'webm', 'ogg', 'mov'].includes(fileExt)) {
+                iframe.srcdoc = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { 
+                                margin: 0; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                min-height: 100vh; 
+                                background: #0a0a0a;
+                            }
+                            video { 
+                                max-width: 100%; 
+                                max-height: 90vh;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <video controls>
+                            <source src="${doc.fileUrl}" type="video/${fileExt}">
+                            <p style="color:white;">Your browser does not support the video tag.</p>
+                        </video>
+                    </body>
+                    </html>
+                `;
+            } else {
+                iframe.srcdoc = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { 
+                                margin: 0; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                min-height: 100vh; 
+                                background: #0a0a0a;
+                                color: #fff;
+                                font-family: sans-serif;
+                                text-align: center;
+                                padding: 40px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div>
+                            <h3>Preview not available</h3>
+                            <p>This file type cannot be previewed in browser.</p>
+                            <a href="${doc.fileUrl}" download style="color: #3b82f6;">Download ${doc.filename}</a>
+                        </div>
+                    </body>
+                    </html>
+                `;
+            }
+        }
+
+        function parseMarkdownSections(markdown) {
+            // Extract People section
+            const peopleMatch = markdown.match(/## People\s*\n([\s\S]*?)(?=##|$)/i);
+            if (peopleMatch) {
+                const peopleList = peopleMatch[1].split('\n')
+                    .filter(line => line.trim().match(/^[-*]\s+/))
+                    .map(line => line.replace(/^[-*]\s+/, '').trim())
+                    .filter(line => line.length > 0);
+                
+                if (peopleList.length > 0) {
+                    const peopleSection = document.getElementById('docPeople');
+                    peopleSection.classList.remove('hidden');
+                    peopleSection.querySelector('ul').innerHTML = peopleList.map(p => 
+                        `<li>${escapeHtml(p)}</li>`
+                    ).join('');
+                }
+            }
+
+            // Extract Places section
+            const placesMatch = markdown.match(/## Places\s*\n([\s\S]*?)(?=##|$)/i);
+            if (placesMatch) {
+                const placesList = placesMatch[1].split('\n')
+                    .filter(line => line.trim().match(/^[-*]\s+/))
+                    .map(line => line.replace(/^[-*]\s+/, '').trim())
+                    .filter(line => line.length > 0);
+                
+                if (placesList.length > 0) {
+                    const placesSection = document.getElementById('docPlaces');
+                    placesSection.classList.remove('hidden');
+                    placesSection.querySelector('ul').innerHTML = placesList.map(p => 
+                        `<li>${escapeHtml(p)}</li>`
+                    ).join('');
+                }
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Copy Link Function
+        function copyCurrentLink() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast();
+            }).catch(err => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast();
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // Initialize
+        showLoading();
+        loadDocument();
+    </script>
+</body>
+</html>
