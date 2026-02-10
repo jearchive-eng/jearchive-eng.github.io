@@ -295,102 +295,97 @@
         }
 
         function setupIframePreview(doc) {
-            const iframe = document.getElementById('docIframe');
-            const fileExt = (doc.type || 'pdf').toLowerCase();
-            
-            if (fileExt === 'pdf') {
-                // Use Google Docs viewer as fallback for better compatibility
-                const fileUrl = encodeURIComponent(window.location.origin + '/' + doc.fileUrl.replace('./', ''));
-                iframe.src = `https://docs.google.com/gview?embedded=1&url=${fileUrl}`;
-                // Fallback to direct if Google fails
-                iframe.onerror = () => {
-                    iframe.src = doc.fileUrl;
-                };
-            } else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(fileExt)) {
-                iframe.srcdoc = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            body { 
-                                margin: 0; 
-                                display: flex; 
-                                align-items: center; 
-                                justify-content: center; 
-                                min-height: 100vh; 
-                                background: #0a0a0a;
-                            }
-                            img { 
-                                max-width: 100%; 
-                                max-height: 90vh; 
-                                object-fit: contain;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${doc.fileUrl}" alt="${doc.title}" onerror="this.parentElement.innerHTML='<p style=\\'color:white;text-align:center;\\'>Image failed to load</p>'">
-                    </body>
-                    </html>
-                `;
-            } else if (['mp4', 'webm', 'ogg', 'mov'].includes(fileExt)) {
-                iframe.srcdoc = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            body { 
-                                margin: 0; 
-                                display: flex; 
-                                align-items: center; 
-                                justify-content: center; 
-                                min-height: 100vh; 
-                                background: #0a0a0a;
-                            }
-                            video { 
-                                max-width: 100%; 
-                                max-height: 90vh;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <video controls>
-                            <source src="${doc.fileUrl}" type="video/${fileExt}">
-                            <p style="color:white;">Your browser does not support the video tag.</p>
-                        </video>
-                    </body>
-                    </html>
-                `;
-            } else {
-                iframe.srcdoc = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            body { 
-                                margin: 0; 
-                                display: flex; 
-                                align-items: center; 
-                                justify-content: center; 
-                                min-height: 100vh; 
-                                background: #0a0a0a;
-                                color: #fff;
-                                font-family: sans-serif;
-                                text-align: center;
-                                padding: 40px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div>
-                            <h3>Preview not available</h3>
-                            <p>This file type cannot be previewed in browser.</p>
-                            <a href="${doc.fileUrl}" download style="color: #3b82f6;">Download ${doc.filename}</a>
-                        </div>
-                    </body>
-                    </html>
-                `;
-            }
-        }
+    const iframe = document.getElementById('docIframe');
+    const fileExt = (doc.type || 'pdf').toLowerCase();
+    
+    if (fileExt === 'pdf') {
+        // Direkt PDF göster (tarayıcı destekliyorsa)
+        iframe.src = doc.fileUrl;
+        
+        // Hata durumunda mesaj göster
+        iframe.onerror = () => {
+            iframe.srcdoc = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { 
+                            margin: 0; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            min-height: 100vh; 
+                            background: #0a0a0a;
+                            color: #fff;
+                            font-family: sans-serif;
+                            text-align: center;
+                            padding: 20px;
+                        }
+                        a { color: #3b82f6; }
+                    </style>
+                </head>
+                <body>
+                    <div>
+                        <p>PDF cannot be previewed.</p>
+                        <a href="${doc.fileUrl}" download>Download PDF</a>
+                    </div>
+                </body>
+                </html>
+            `;
+        };
+    } else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(fileExt)) {
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0a0a0a; }
+                    img { max-width: 100%; max-height: 90vh; object-fit: contain; }
+                </style>
+            </head>
+            <body>
+                <img src="${doc.fileUrl}" alt="${doc.title}" onerror="this.parentElement.innerHTML='<p style=\\'color:white;text-align:center;\\'>Image failed to load</p>'">
+            </body>
+            </html>
+        `;
+    } else if (['mp4', 'webm', 'ogg', 'mov'].includes(fileExt)) {
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0a0a0a; }
+                    video { max-width: 100%; max-height: 90vh; }
+                </style>
+            </head>
+            <body>
+                <video controls>
+                    <source src="${doc.fileUrl}" type="video/${fileExt}">
+                    <p style="color:white;">Browser does not support video tag.</p>
+                </video>
+            </body>
+            </html>
+        `;
+    } else {
+        iframe.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0a0a0a; color: #fff; font-family: sans-serif; text-align: center; padding: 40px; }
+                </style>
+            </head>
+            <body>
+                <div>
+                    <h3>Preview not available</h3>
+                    <p>This file type cannot be previewed.</p>
+                    <a href="${doc.fileUrl}" download style="color: #3b82f6;">Download ${doc.filename}</a>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+}
 
         function parseMarkdownSections(markdown) {
             // Extract People section
