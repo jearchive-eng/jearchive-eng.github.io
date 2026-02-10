@@ -6,14 +6,14 @@ const documentsData = {
         id: 'ornek-belge',
         title: 'Örnek Belge Başlığı',
         description: 'Bu bir örnek belgedir. GitHub Pages otomatik arşiv sisteminde nasıl göründüğünü test etmek için oluşturulmuştur.',
-        filename: 'ornek-belge.pdf',
-        fileUrl: './src/doc/ornek-belge.pdf',
+        filename: 'EFTA00000001.pdf',
+        fileUrl: './src/doc/EFTA00000001.pdf',
         markdownUrl: './src/doc/ornek-belge.md',
         date: '2026-02-10',
         size: '2 MB',
         type: 'pdf',
         category: 'FEDERAL',
-        fileType: 'doc'
+        fileType: 'pdf'
     }
     
     // YENİ BELGE EKLEME ÖRNEĞİ:
