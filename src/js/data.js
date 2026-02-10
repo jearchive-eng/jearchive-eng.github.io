@@ -6,18 +6,7 @@ const documentsData = {};
 // Otomatik tarama fonksiyonu
 async function autoScanDocuments() {
     const commonIds = [
-        'black-book',
-        'maxwell-deposition-2016',
-        'katie-johnson-lawsuit',
-        'giuffre-deposition-2016',
-        'sjoberg-deposition-2016',
-        'katie-johnson-video',
-        'epstein-indictment',
-        'flight-logs',
-        'giuffre-unsealed',
-        'palm-beach-evidence',
-        'little-st-james',
-        'maxwell-arrest'
+        'ornek-belge',
     ];
     
     // Yeni ID'ler buraya otomatik eklenebilir
