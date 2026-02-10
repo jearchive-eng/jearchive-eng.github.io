@@ -102,14 +102,14 @@ function showErrorState() {
 }
 
 function updateStatsUI(stats) {
-    const totalFilesEl = document.getElementById('totalFiles');
+	const totalFilesEl = document.getElementById('totalFiles');
     const totalCategoriesEl = document.getElementById('totalCategories');
     const totalSizeEl = document.getElementById('totalSize');
     const lastUpdateEl = document.getElementById('lastUpdate');
     
     if (totalFilesEl) totalFilesEl.textContent = stats.totalFiles;
     if (totalCategoriesEl) totalCategoriesEl.textContent = stats.categories;
-    if (totalSizeEl) totalSizeEl.textContent = `${stats.totalGB} GB`;
+    if (totalSizeEl) totalSizeEl.textContent = stats.totalSize; // totalGB YERİNE totalSize
     if (lastUpdateEl) lastUpdateEl.textContent = stats.lastUpdateText;
 }
 

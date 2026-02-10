@@ -1,12 +1,11 @@
 // data.js - MANUEL VERİ GİRİŞİ
-// Yeni belge eklemek için documentsData objesine ekleme yap
 
 const documentsData = {
     'ornek-belge': {
         id: 'ornek-belge',
         title: 'Örnek Belge Başlığı',
         description: 'Bu bir örnek belgedir. GitHub Pages otomatik arşiv sisteminde nasıl göründüğünü test etmek için oluşturulmuştur.',
-        filename: 'ornek-belge.pdf',
+        filename: 'EFTA00000001.pdf',
         fileUrl: './src/doc/EFTA00000001.pdf',
         markdownUrl: './src/doc/ornek-belge.md',
         date: '2026-02-10',
@@ -16,16 +15,16 @@ const documentsData = {
         fileType: 'doc'
     }
     
-    // YENİ BELGE EKLEME ÖRNEĞİ:
+    // YENİ BELGE EKLEMEK İÇİN:
     // ,'yeni-belge': {
     //     id: 'yeni-belge',
-    //     title: 'Yeni Belge Başlığı',
-    //     description: 'Bu yeni bir belgedir.',
-    //     filename: 'EFTA00000001.pdf',
-    //     fileUrl: './src/doc/EFTA00000001.pdf',
+    //     title: 'Yeni Belge',
+    //     description: 'Açıklama',
+    //     filename: 'dosya.pdf',
+    //     fileUrl: './src/doc/dosya.pdf',
     //     markdownUrl: './src/doc/yeni-belge.md',
     //     date: '2026-02-11',
-    //     size: '1.5 MB',
+    //     size: '3 MB',
     //     type: 'pdf',
     //     category: 'DOCUMENT',
     //     fileType: 'doc'
@@ -40,7 +39,7 @@ const fileTypeMap = {
     audio: ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a']
 };
 
-// İstatistik hesaplama
+// İstatistik hesaplama - DÜZELTİLMİŞ VERSİYON
 function calculateStats() {
     const docs = Object.values(documentsData);
     const totalFiles = docs.length;
@@ -49,22 +48,37 @@ function calculateStats() {
     let totalBytes = 0;
     docs.forEach(doc => {
         const size = (doc.size || '0 MB').toLowerCase();
+        
         if (size.includes('gb')) {
             totalBytes += parseFloat(size) * 1024 * 1024 * 1024;
         } else if (size.includes('mb')) {
             totalBytes += parseFloat(size) * 1024 * 1024;
         } else if (size.includes('kb')) {
             totalBytes += parseFloat(size) * 1024;
+        } else if (size.includes('b') && !size.includes('kb') && !size.includes('mb') && !size.includes('gb')) {
+            totalBytes += parseFloat(size);
         }
     });
     
-    const totalGB = totalBytes > 0 ? (totalBytes / (1024 * 1024 * 1024)).toFixed(1) : '0.0';
+    // OTOMATİK FORMAT: B, KB, MB veya GB olarak göster
+    let totalSize;
+    if (totalBytes === 0) {
+        totalSize = '0 B';
+    } else if (totalBytes < 1024) {
+        totalSize = Math.round(totalBytes) + ' B';
+    } else if (totalBytes < 1024 * 1024) {
+        totalSize = (totalBytes / 1024).toFixed(1) + ' KB';
+    } else if (totalBytes < 1024 * 1024 * 1024) {
+        totalSize = (totalBytes / (1024 * 1024)).toFixed(1) + ' MB';
+    } else {
+        totalSize = (totalBytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    }
     
     if (docs.length === 0) {
         return { 
             totalFiles: 0, 
             categories: 0, 
-            totalGB: '0.0', 
+            totalSize: '0 B', 
             lastUpdateText: 'Never' 
         };
     }
@@ -79,13 +93,14 @@ function calculateStats() {
     else if (diffDays === 1) lastUpdateText = 'Yesterday';
     else if (diffDays < 7) lastUpdateText = `${diffDays} days ago`;
     else if (diffDays < 30) lastUpdateText = `${Math.floor(diffDays / 7)} weeks ago`;
-    else lastUpdateText = lastUpdate.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
-    });
+    else lastUpdateText = lastUpdate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     
-    return { totalFiles, categories, totalGB, lastUpdateText };
+    return { 
+        totalFiles, 
+        categories, 
+        totalSize,  // ARTIK DOĞRU GÖSTERİYOR: "2.0 MB"
+        lastUpdateText 
+    };
 }
 
 // Dummy fonksiyon (app.js uyumluluğu için)
