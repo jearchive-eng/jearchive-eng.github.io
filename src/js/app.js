@@ -1,18 +1,24 @@
+// app.js - Ana uygulama mantığı
+
 // State
 let currentPage = 1;
 let itemsPerPage = 10;
 let filteredDocs = [];
 let currentSearch = '';
 let selectedTypes = { doc: true, img: true, video: true, audio: true };
-let isLoading = true;
+let isLoading = false;
 
-// Initialize - Otomatik tarama ile başlar
-document.addEventListener('DOMContentLoaded', async () => {
-    // Önce otomatik tarama yap
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
     showLoadingState();
     
     try {
-        await autoScanDocuments();
+        // Manuel veri kontrolü
+        if (Object.keys(documentsData).length === 0) {
+            showEmptyState();
+            return;
+        }
+        
         isLoading = false;
         hideLoadingState();
         
@@ -50,7 +56,7 @@ function showLoadingState() {
             <tr>
                 <td colspan="4" style="text-align: center; padding: 60px;">
                     <div class="loading-spinner" style="width: 40px; height: 40px; border-width: 3px;"></div>
-                    <p style="margin-top: 20px; color: var(--text-muted);">Scanning documents...</p>
+                    <p style="margin-top: 20px; color: var(--text-muted);">Loading documents...</p>
                 </td>
             </tr>
         `;
@@ -59,6 +65,27 @@ function showLoadingState() {
 
 function hideLoadingState() {
     // Normal görünüme geç
+}
+
+function showEmptyState() {
+    const tbody = document.getElementById('documentsTableBody');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (tbody) tbody.innerHTML = '';
+    if (emptyState) {
+        emptyState.classList.remove('hidden');
+        emptyState.innerHTML = `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <p>No documents found.</p>
+            <p style="font-size: 14px; margin-top: 10px;">Add documents to data.js file.</p>
+        `;
+    }
+    
+    // Stats sıfırla
+    updateStatsUI({ totalFiles: 0, categories: 0, totalGB: '0.0', lastUpdateText: 'Never' });
 }
 
 function showErrorState() {
@@ -86,30 +113,9 @@ function updateStatsUI(stats) {
     if (lastUpdateEl) lastUpdateEl.textContent = stats.lastUpdateText;
 }
 
-// ... (diğer fonksiyonlar aynı: openMobileMenu, closeMobileMenu, toggleAdvanced, vb.)
-
 // Filter Documents
 function filterDocuments() {
     const allDocs = Object.values(documentsData);
-    
-    if (allDocs.length === 0 && !isLoading) {
-        const tbody = document.getElementById('documentsTableBody');
-        const emptyState = document.getElementById('emptyState');
-        
-        if (tbody) tbody.innerHTML = '';
-        if (emptyState) {
-            emptyState.classList.remove('hidden');
-            emptyState.innerHTML = `
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-                <p>No documents found in src/docs/ folder.</p>
-                <p style="font-size: 14px; margin-top: 10px;">Add .md and .pdf files to src/docs/ directory.</p>
-            `;
-        }
-        return;
-    }
     
     filteredDocs = allDocs.filter(doc => {
         if (!selectedTypes[doc.fileType]) return false;
@@ -126,7 +132,7 @@ function filterDocuments() {
     renderPagination();
 }
 
-// Render Table (aynı)
+// Render Table
 function renderTable() {
     const tbody = document.getElementById('documentsTableBody');
     const emptyState = document.getElementById('emptyState');
@@ -170,7 +176,7 @@ function renderTable() {
     `).join('');
 }
 
-// Render Pagination (aynı)
+// Render Pagination
 function renderPagination() {
     const pagination = document.getElementById('pagination');
     if (!pagination) return;
@@ -223,7 +229,7 @@ function highlightText(text) {
     return text.replace(regex, '<span class="highlight">$1</span>');
 }
 
-// Diğer fonksiyonlar...
+// UI Functions
 function openMobileMenu() {
     const menu = document.getElementById('mobileMenu');
     const overlay = document.getElementById('mobileOverlay');

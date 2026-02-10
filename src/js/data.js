@@ -1,147 +1,46 @@
-// Otomatik belge verisi - GitHub Pages için client-side tarama
-// src/docs/ klasöründeki .md dosyalarını otomatik bulur
+// data.js - MANUEL VERİ GİRİŞİ
+// Yeni belge eklemek için documentsData objesine ekleme yap
 
-const documentsData = {};
-
-// Otomatik tarama fonksiyonu
-async function autoScanDocuments() {
-    const commonIds = [
-        'ornek-belge',
-    ];
-    
-    // Yeni ID'ler buraya otomatik eklenebilir
-    // Örnek: GitHub API ile repo içeriğini çekmek
-    
-    const docs = {};
-    
-    for (const id of commonIds) {
-        try {
-            const doc = await tryLoadDocument(id);
-            if (doc) {
-                docs[id] = doc;
-            }
-        } catch (e) {
-            // Dosya yok, atla
-        }
-    }
-    
-    // Global değişkene ata
-    Object.assign(documentsData, docs);
-    
-    return docs;
-}
-
-// Tek dosya dene
-async function tryLoadDocument(id) {
-    // Önce markdown var mı kontrol et
-    try {
-        const mdResponse = await fetch(`./src/docs/${id}.md`, { method: 'HEAD' });
-        if (!mdResponse.ok) return null;
-        
-        // Markdown içeriğini oku ve metadata çıkar
-        const mdContent = await fetch(`./src/docs/${id}.md`).then(r => r.text());
-        
-        // Metadata parse et
-        const title = extractTitle(mdContent) || id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        const description = extractDescription(mdContent) || 'No description';
-        const date = extractDate(mdContent) || new Date().toISOString().split('T')[0];
-        const category = extractCategory(mdContent) || 'DOCUMENT';
-        
-        // Asıl dosyayı bul (pdf, mp4, vb.)
-        const fileInfo = await findMainFile(id);
-        
-        return {
-            id: id,
-            title: title,
-            description: description,
-            filename: fileInfo.filename,
-            fileUrl: fileInfo.fileUrl,
-            markdownUrl: `./src/docs/${id}.md`,
-            date: date,
-            size: 'Unknown',
-            type: fileInfo.extension,
-            category: category,
-            fileType: fileInfo.fileType
-        };
-        
-    } catch (error) {
-        return null;
-    }
-}
-
-// Metadata çıkarıcılar
-function extractTitle(md) {
-    const match = md.match(/^#\s+(.+)$/m);
-    return match ? match[1].trim() : null;
-}
-
-function extractDescription(md) {
-    // Summary bölümü veya ilk paragraf
-    const summaryMatch = md.match(/## Summary\s*\n([\s\S]*?)(?=##|$)/i);
-    if (summaryMatch) {
-        return summaryMatch[1].replace(/\n/g, ' ').trim().substring(0, 300);
-    }
-    
-    // İlk paragraf
-    const paraMatch = md.match(/\n\n([^#\n][^\n]{50,500})\n\n/);
-    return paraMatch ? paraMatch[1].trim() : null;
-}
-
-function extractDate(md) {
-    const match = md.match(/(?:Date|Published|Document Date):\s*(\d{4}-\d{2}-\d{2})/i);
-    return match ? match[1] : null;
-}
-
-function extractCategory(md) {
-    const content = md.toUpperCase();
-    if (content.includes('LEAKED') || content.includes('UNREDACTED')) return 'LEAKED';
-    if (content.includes('FEDERAL') || content.includes('FBI') || content.includes('INDICTMENT')) return 'FEDERAL';
-    if (content.includes('COURT') || content.includes('LAWSUIT') || content.includes('DEPOSITION')) return 'COURT DOCUMENT';
-    if (content.includes('EVIDENCE') || content.includes('PHOTO') || content.includes('VIDEO')) return 'EVIDENCE';
-    return 'DOCUMENT';
-}
-
-// Asıl dosyayı bul (pdf, mp4, jpg, vb.)
-async function findMainFile(id) {
-    const extensions = [
-        { ext: 'pdf', type: 'doc' },
-        { ext: 'mp4', type: 'video' },
-        { ext: 'webm', type: 'video' },
-        { ext: 'jpg', type: 'img' },
-        { ext: 'jpeg', type: 'img' },
-        { ext: 'png', type: 'img' },
-        { ext: 'gif', type: 'img' },
-        { ext: 'zip', type: 'img' },
-        { ext: 'docx', type: 'doc' },
-        { ext: 'txt', type: 'doc' }
-    ];
-    
-    for (const { ext, type } of extensions) {
-        try {
-            const response = await fetch(`./src/docs/${id}.${ext}`, { method: 'HEAD' });
-            if (response.ok) {
-                return {
-                    filename: `${id}.${ext}`,
-                    fileUrl: `./src/docs/${id}.${ext}`,
-                    extension: ext,
-                    fileType: type
-                };
-            }
-        } catch (e) {
-            // Devam et
-        }
-    }
-    
-    // Varsayılan: pdf varsay
-    return {
-        filename: `${id}.pdf`,
-        fileUrl: `./src/docs/${id}.pdf`,
-        extension: 'pdf',
+const documentsData = {
+    'ornek-belge': {
+        id: 'ornek-belge',
+        title: 'Örnek Belge Başlığı',
+        description: 'Bu bir örnek belgedir. GitHub Pages otomatik arşiv sisteminde nasıl göründüğünü test etmek için oluşturulmuştur.',
+        filename: 'ornek-belge.pdf',
+        fileUrl: './src/docs/ornek-belge.pdf',
+        markdownUrl: './src/docs/ornek-belge.md',
+        date: '2026-02-10',
+        size: '2 MB',
+        type: 'pdf',
+        category: 'FEDERAL',
         fileType: 'doc'
-    };
-}
+    }
+    
+    // YENİ BELGE EKLEME ÖRNEĞİ:
+    // ,'yeni-belge': {
+    //     id: 'yeni-belge',
+    //     title: 'Yeni Belge Başlığı',
+    //     description: 'Bu yeni bir belgedir.',
+    //     filename: 'yeni-belge.pdf',
+    //     fileUrl: './src/docs/yeni-belge.pdf',
+    //     markdownUrl: './src/docs/yeni-belge.md',
+    //     date: '2026-02-11',
+    //     size: '1.5 MB',
+    //     type: 'pdf',
+    //     category: 'DOCUMENT',
+    //     fileType: 'doc'
+    // }
+};
 
-// Stats hesaplama (boş data.js ile çalışır)
+// Dosya tipi haritası
+const fileTypeMap = {
+    doc: ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx', 'csv'],
+    img: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'tiff', 'ico', 'raw'],
+    video: ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm', 'm4v', '3gp'],
+    audio: ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a']
+};
+
+// İstatistik hesaplama
 function calculateStats() {
     const docs = Object.values(documentsData);
     const totalFiles = docs.length;
@@ -162,7 +61,12 @@ function calculateStats() {
     const totalGB = totalBytes > 0 ? (totalBytes / (1024 * 1024 * 1024)).toFixed(1) : '0.0';
     
     if (docs.length === 0) {
-        return { totalFiles: 0, categories: 0, totalGB: '0.0', lastUpdateText: 'Never' };
+        return { 
+            totalFiles: 0, 
+            categories: 0, 
+            totalGB: '0.0', 
+            lastUpdateText: 'Never' 
+        };
     }
     
     const dates = docs.map(d => new Date(d.date || '2024-01-01'));
@@ -175,7 +79,16 @@ function calculateStats() {
     else if (diffDays === 1) lastUpdateText = 'Yesterday';
     else if (diffDays < 7) lastUpdateText = `${diffDays} days ago`;
     else if (diffDays < 30) lastUpdateText = `${Math.floor(diffDays / 7)} weeks ago`;
-    else lastUpdateText = lastUpdate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    else lastUpdateText = lastUpdate.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
     
     return { totalFiles, categories, totalGB, lastUpdateText };
+}
+
+// Dummy fonksiyon (app.js uyumluluğu için)
+async function autoScanDocuments() {
+    return documentsData;
 }
